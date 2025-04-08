@@ -1,21 +1,50 @@
 // Set target folder
 // Set Stratergy
 
-use std::io;
+pub mod file_table;
 
-use crossterm::{event, terminal};
-use ratatui::{DefaultTerminal, Frame};
+use ratatui::{
+    prelude::{Buffer, Rect},
+    style::Stylize,
+    text::{Line, Span, Text},
+    widgets::{Block, BorderType, Paragraph, Widget},
+};
 
-pub fn run_ui() {
-    let terminal = ratatui::init();
-    ratatui::restore();
+use crate::config::BroomhildeConfig;
+
+pub struct ConfigUi<'a> {
+    config: &'a BroomhildeConfig,
 }
 
-fn run(mut terminal: DefaultTerminal) -> Result<(), io::Error> {
-    loop {
-        let _ = terminal.draw(render)?;
-        if let Ok(event) = event::read() {}
+impl<'a> ConfigUi<'a> {
+    pub fn new(config: &'a BroomhildeConfig) -> Self {
+        Self { config }
     }
 }
 
-fn render(frame: &mut Frame) {}
+impl<'a> Widget for ConfigUi<'a> {
+    fn render(self, area: Rect, buf: &mut Buffer)
+    where
+        Self: Sized,
+    {
+        let title = Line::from("BROOMHILDE".bold());
+        let instructions = Line::from(vec![
+            Span::from("+Add").bold().green(),
+            Span::from("~Change").bold().yellow(),
+            Span::from("-Delete").bold().light_red(),
+            Span::from("!Exit").bold().red(),
+        ]);
+
+        let block = Block::bordered()
+            .title(title.left_aligned())
+            .title_bottom(instructions.centered())
+            .border_type(BorderType::Rounded);
+
+        let text = Text::from("DEMO TEXT").centered();
+
+        Paragraph::new(text)
+            .left_aligned()
+            .block(block)
+            .render(area, buf);
+    }
+}

@@ -5,23 +5,60 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BroomhildeConfig {
     pub default_stratergy: Stratergy,
     pub folder_configs: Vec<FolderConfig>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl BroomhildeConfig {
+    pub fn test_data() -> Self {
+        Self {
+            default_stratergy: Stratergy::Folderize,
+            folder_configs: vec![
+                FolderConfig {
+                    path: "/Users/georgecker/Downloads".to_string(),
+                    stratergy: Some(Stratergy::Folderize),
+                },
+                FolderConfig {
+                    path: "/Users/georgecker/Desktop".to_string(),
+                    stratergy: Some(Stratergy::Clear),
+                },
+            ],
+        }
+    }
+}
+
+impl Default for BroomhildeConfig {
+    fn default() -> Self {
+        Self {
+            default_stratergy: Stratergy::Folderize,
+            folder_configs: Vec::new(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FolderConfig {
     pub path: String,
     pub stratergy: Option<Stratergy>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Stratergy {
     Folderize = 1, // Collects all files into a Daily folder
     Clear = 2,     // Clears folder
     Reduce = 3,    // Reduces files with mutual token in name into a folder
+}
+
+impl Stratergy {
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::Folderize => "Folderize".to_string(),
+            Self::Clear => "Clear".to_string(),
+            Self::Reduce => "Reduce".to_string(),
+        }
+    }
 }
 
 /// Saves config to OS specified path
@@ -42,7 +79,7 @@ pub fn save_config(config: BroomhildeConfig) -> Result<(), io::Error> {
 }
 
 /// Retrieves config from OS specified path
-fn get_config() -> Result<BroomhildeConfig, io::Error> {
+pub fn get_config() -> Result<BroomhildeConfig, io::Error> {
     let path = get_os_config_path();
     if fs::exists(&path)? {
         let file = File::open(&path)?;
@@ -62,10 +99,8 @@ fn get_os_config_path() -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::{thread::sleep, time::Duration};
-
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
+    use std::{thread::sleep, time::Duration};
 
     #[test]
     fn save_config_assert_success() {
