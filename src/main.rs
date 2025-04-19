@@ -1,6 +1,6 @@
 use app::App;
 
-mod app;
+pub mod app;
 pub mod config;
 pub mod organizer;
 pub mod ui;
@@ -12,6 +12,5 @@ fn main() {
 
     let mut terminal = ratatui::init();
     let _ = App::default().run_ui(&mut terminal);
-    println!("Hello, world!");
     ratatui::restore();
 }

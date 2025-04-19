@@ -44,7 +44,7 @@ pub struct FolderConfig {
     pub stratergy: Option<Stratergy>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum Stratergy {
     Folderize = 1, // Collects all files into a Daily folder
     Clear = 2,     // Clears folder

@@ -1,14 +1,10 @@
-use std::{io, time::Duration};
-
-use crossterm::event::{self, Event};
-use ratatui::{
-    DefaultTerminal, Terminal,
-    widgets::{TableState, Widget},
-};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use ratatui::{DefaultTerminal, widgets::TableState};
+use std::time::Duration;
 
 use crate::{
-    config::{self, BroomhildeConfig, FolderConfig, Stratergy},
-    ui::{ConfigUi, file_table::FileTable},
+    config::BroomhildeConfig,
+    ui::{Component, file_table::FileTable},
 };
 
 pub struct App {
@@ -25,19 +21,27 @@ impl App {
         );
         self.active = true;
         while self.active {
-            terminal.draw(|frame| test.render(frame, frame.area()));
+            let _ = terminal.draw(|frame| test.render(frame, frame.area()));
 
             if event::poll(Duration::from_millis(100)).unwrap() {
-                self.active = !matches!(event::read().unwrap(), Event::Key(_));
+                if let Event::Key(key) = event::read().unwrap() {
+                    if key.kind == KeyEventKind::Press {
+                        let only_control_pressed =
+                            key.modifiers.symmetric_difference(KeyModifiers::CONTROL)
+                                == KeyModifiers::NONE;
+
+                        if only_control_pressed && key.code == KeyCode::Char('c') {
+                            self.active = false;
+                        } else {
+                            test.handle_key(key);
+                        }
+                    }
+                }
             }
         }
     }
 
     pub fn execute(&mut self) {
-        todo!()
-    }
-
-    fn handle_events(&mut self) -> io::Result<()> {
         todo!()
     }
 }
